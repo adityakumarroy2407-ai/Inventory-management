@@ -13,6 +13,7 @@ def load_inventory():
 inventory =load_inventory()
 
 def add_product():
+    global inventory
     id=int(input("Enter id of product: "))
     if inventory['id'].isin([id]).any():  
         print("This id is already exist..try with another id")
@@ -23,11 +24,51 @@ def add_product():
         reorder_level=int(input("Enter the reorder number: "))
 
         df1= pd.DataFrame({'id':[id],'name':[name],'quantity':[quantity],'price':[price],'reorder_level':[reorder_level]})
-        global inventory
         inventory=pd.concat([inventory,df1],ignore_index=True)
         inventory.to_csv('data/inventory.csv',index=False)
         print(inventory)
 
-add_product()
-add_product()
+def view_inventory():
+    if inventory.empty==True:
+        print("Inventory is empty")
+    else:
+        print(inventory)
 
+
+def search_product():
+    Name = str(input("Search with name: "))
+    if (inventory['name']==Name).any():
+       print( inventory[inventory['name']==Name])
+    else:
+        print("This product is not available")
+
+
+def low_stock():
+    low=inventory[inventory['quantity']<= inventory['reorder_level']]
+    if low.empty:
+        print("Product quantity is fine")
+    else:
+        print("This product should be ordered")
+        print(low)
+
+def  total_inventory_value():
+    total=(inventory ['quantity']* inventory['price']).sum()
+    print("Total inventory value is :",total)
+
+def sell_product():
+    product_id=int(input("Enter the product id "))
+    product =inventory[inventory['id']==product_id]
+    if product.empty:
+        print("product isnot avalilable")
+    else:
+        need=int(input("How many units customer want :"))
+        if need<=0:
+            print("Enter a valid quantity")
+        else:
+            avilable=product['quantity'].iloc[0]
+            if need<=avilable:
+                print("You can sell this product")
+                inventory.loc[inventory['id']==product_id,'quantity']=avilable-need
+                inventory.to_csv('data/inventory.csv',index=False)
+            else:
+                print("Not have enough product")
