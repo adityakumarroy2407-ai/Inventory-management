@@ -72,3 +72,15 @@ def sell_product():
                 inventory.to_csv('data/inventory.csv',index=False)
             else:
                 print("Not have enough product")
+
+def load_transaction():
+    os.makedirs('data', exist_ok=True)
+    if(os.path.exists('data/transaction.csv')):
+        df=pd.read_csv('data/transaction.csv')
+        return(df)
+    else:
+        df2=pd.DataFrame(columns=['transaction_id','product_id','date','transaction_type','quantity','price_per_unit'])
+        df2.to_csv('data/transaction.csv',index=False)
+        return (df2)
+transaction=load_transaction()
+
