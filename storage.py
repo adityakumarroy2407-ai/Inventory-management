@@ -56,6 +56,7 @@ def  total_inventory_value():
     print("Total inventory value is :",total)
 
 def sell_product():
+    global inventory, transaction
     product_id=int(input("Enter the product id "))
     product =inventory[inventory['id']==product_id]
     if product.empty:
@@ -70,6 +71,13 @@ def sell_product():
                 print("You can sell this product")
                 inventory.loc[inventory['id']==product_id,'quantity']=avilable-need
                 inventory.to_csv('data/inventory.csv',index=False)
+                if transaction.empty:
+                    new_id=1
+                else:
+                    new_id=int(transaction['transaction_id'].max())+1
+                new_transaction=pd.DataFrame({'transaction_id':[new_id],'product_id':[product_id],'transaction_type':['sale'],'quantity':[need],'price_per_unit':product['price'].iloc[0]})
+                transaction=pd.concat([transaction,new_transaction],ignore_index=True)
+                transaction.to_csv('data/transaction.csv',index=False)     
             else:
                 print("Not have enough product")
 
@@ -79,8 +87,14 @@ def load_transaction():
         df=pd.read_csv('data/transaction.csv')
         return(df)
     else:
-        df2=pd.DataFrame(columns=['transaction_id','product_id','date','transaction_type','quantity','price_per_unit'])
+        df2=pd.DataFrame(columns=['transaction_id','product_id','transaction_type','quantity','price_per_unit'])
         df2.to_csv('data/transaction.csv',index=False)
         return (df2)
 transaction=load_transaction()
+
+def view_transaction():
+    if transaction.empty==True:
+        print("No transaction history found")
+    else:
+        print(transaction)
 
