@@ -75,7 +75,7 @@ def sell_product():
                     new_id=1
                 else:
                     new_id=int(transaction['transaction_id'].max())+1
-                new_transaction=pd.DataFrame({'transaction_id':[new_id],'product_id':[product_id],'transaction_type':['sale'],'quantity':[need],'price_per_unit':product['price'].iloc[0]})
+                new_transaction=pd.DataFrame({'transaction_id':[new_id],'product_id':[product_id],'transaction_type':['sale'],'quantity':[need],'price_per_unit':[product['price'].iloc[0]]})
                 transaction=pd.concat([transaction,new_transaction],ignore_index=True)
                 transaction.to_csv('data/transaction.csv',index=False)     
             else:
@@ -98,3 +98,54 @@ def view_transaction():
     else:
         print(transaction)
 
+def restock_product():
+    product_id=int(input("Enter the product id: "))
+    product=inventory[inventory['id']==product_id]
+    if product.empty:
+        print("Product isnot available")
+    else:
+        arrive=int(input("How many arrived"))
+        if arrive<=0:
+            print("Invalide number")
+        else:
+            available = product['quantity'].iloc[0]
+            inventory.loc[inventory['id']==product_id,'quantity']=available+arrive
+            inventory.to_csv('data/inventory.csv',index=False)
+
+def main_menu():
+    while True:
+        print("===== INVENTORY MANAGER =====")
+        print("1. Add product")
+        print("2. View inventory")
+        print("3. Search product")
+        print("4. Low stock alart")
+        print("5. Total inventory value")
+        print("6. Sell product")
+        print("7. Restock product")
+        print("8. View transaction history")
+        print("9. Exit")
+
+        choose=int(input("Enter your choose"))
+        if choose==1:
+            add_product()
+        elif choose==2:
+            view_inventory()
+        elif choose==3:
+            search_product()
+        elif choose==4:
+            low_stock()
+        elif choose==5:
+            total_inventory_value()
+        elif choose==6:
+            sell_product()
+        elif choose==7:
+            restock_product()
+        elif choose==8:
+            view_transaction()
+        elif choose==9:
+            print("Thank you for using")
+            break
+        else:
+            print("Invalid choose...try another")
+
+main_menu()
